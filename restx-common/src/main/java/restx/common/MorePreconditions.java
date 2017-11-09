@@ -12,6 +12,10 @@ import java.util.Map;
  * Time: 1:39 PM
  */
 public class MorePreconditions {
+	
+	private MorePreconditions() {
+	}
+	
     public static <T> T checkPresent(Optional<T> optional, String msg, Object... parameters) {
         if (optional.isPresent()) {
             return optional.get();

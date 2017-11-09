@@ -1,17 +1,11 @@
 package restx.common;
 
-import com.google.common.base.Charsets;
-import com.google.common.collect.ImmutableList;
-import com.google.common.io.ByteSink;
-import com.google.common.io.ByteSource;
-import com.google.common.io.CharSource;
-import com.google.common.io.Resources;
-import com.samskivert.mustache.Mustache;
-import com.samskivert.mustache.Template;
+import static com.google.common.io.Files.asByteSink;
+import static com.google.common.io.Files.asByteSource;
+import static com.google.common.io.Files.asCharSource;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.net.URL;
 import java.nio.file.FileVisitResult;
 import java.nio.file.Files;
@@ -21,9 +15,15 @@ import java.nio.file.attribute.BasicFileAttributes;
 import java.util.Map;
 import java.util.regex.Pattern;
 
-import static com.google.common.io.Files.asByteSink;
-import static com.google.common.io.Files.asByteSource;
-import static com.google.common.io.Files.asCharSource;
+import com.google.common.base.Charsets;
+import com.google.common.collect.ImmutableList;
+import com.google.common.io.ByteSource;
+import com.google.common.io.CharSource;
+import com.google.common.io.Resources;
+import com.samskivert.mustache.Mustache;
+import com.samskivert.mustache.Template;
+
+import restx.common.exceptions.ArchetypeBuildException;
 
 /**
  * Date: 6/1/14
@@ -62,7 +62,7 @@ public class Archetype {
             });
             return new Archetype(builder.build());
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            throw new ArchetypeBuildException(e);
         }
     }
 

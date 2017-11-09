@@ -10,13 +10,16 @@ import java.util.HashMap;
 import java.util.concurrent.TimeUnit;
 
 /**
- * Used to coalesce {@link restx.common.watch.FileWatchEvent} in a short period of time.
+ * Used to coalesce {@link restx.common.watch.FileWatchEvent} in a short period
+ * of time.
  *
  * <p>
  * There is some cases where events will be discarded:
  * <ul>
- * <li>If the same event is posted multiple times, only the first occurrence will be kept.</li>
- * <li>If a create event follow a delete event, for a same file, it will be transformed into a modified event.</li>
+ * <li>If the same event is posted multiple times, only the first occurrence
+ * will be kept.</li>
+ * <li>If a create event follow a delete event, for a same file, it will be
+ * transformed into a modified event.</li>
  * </ul>
  *
  * @author apeyrard
@@ -26,8 +29,10 @@ public class FileWatchEventCoalescor extends EventCoalescor<FileWatchEvent> {
 	/**
 	 * Create a new {@link EventCoalescor} to coalesce {@link FileWatchEvent}.
 	 *
-	 * @param eventBus the event bus where to post processed events
-	 * @param coalescePeriod the coalesce period
+	 * @param eventBus
+	 *            the event bus where to post processed events
+	 * @param coalescePeriod
+	 *            the coalesce period
 	 * @return the generic event coalescor
 	 */
 	public static FileWatchEventCoalescor create(EventBus eventBus, long coalescePeriod) {
@@ -41,10 +46,11 @@ public class FileWatchEventCoalescor extends EventCoalescor<FileWatchEvent> {
 	}
 
 	/**
-	 * Posts a {@link restx.common.watch.FileWatchEvent}, the post will be delayed, or even discarded, if
-	 * the event might be merged, with a previous one.
+	 * Posts a {@link restx.common.watch.FileWatchEvent}, the post will be delayed,
+	 * or even discarded, if the event might be merged, with a previous one.
 	 *
-	 * @param event the event to try to post
+	 * @param event
+	 *            the event to try to post
 	 */
 	public void post(final FileWatchEvent event) {
 		synchronized (queue) {
@@ -84,51 +90,51 @@ public class FileWatchEventCoalescor extends EventCoalescor<FileWatchEvent> {
 			return true; // duplicate events, keep only one
 		}
 
-		if (previous.getReference().getKind() == StandardWatchEventKinds.ENTRY_DELETE) {
-			if (current.getKind() == StandardWatchEventKinds.ENTRY_CREATE) {
-				// DELETE, then CREATE, so merge into a MODIFY
-				previous.updateReference(
-						FileWatchEvent.fromWithKind(previous.getReference(), StandardWatchEventKinds.ENTRY_MODIFY));
-				return true;
-			}
+		if (previous.getReference().getKind() == StandardWatchEventKinds.ENTRY_DELETE
+				&& current.getKind() == StandardWatchEventKinds.ENTRY_CREATE) {
+
+			// DELETE, then CREATE, so merge into a MODIFY
+			previous.updateReference(
+					FileWatchEvent.fromWithKind(previous.getReference(), StandardWatchEventKinds.ENTRY_MODIFY));
+			return true;
+
 		}
 
-		if (previous.getReference().getKind() == StandardWatchEventKinds.ENTRY_CREATE) {
-			if (current.getKind() == StandardWatchEventKinds.ENTRY_MODIFY) {
-				// skip modify
-				return true;
-			}
+		if (previous.getReference().getKind() == StandardWatchEventKinds.ENTRY_CREATE
+				&& current.getKind() == StandardWatchEventKinds.ENTRY_MODIFY) {
+
+			// skip modify
+			return true;
+
 		}
 
-		if (previous.getReference().getKind() == StandardWatchEventKinds.ENTRY_CREATE) {
-			if (current.getKind() == StandardWatchEventKinds.ENTRY_DELETE) {
-				// CREATE then DELETE, so nothing to notify
-				previous.clearReference();
-				return true;
-			}
+		if (previous.getReference().getKind() == StandardWatchEventKinds.ENTRY_CREATE
+				&& current.getKind() == StandardWatchEventKinds.ENTRY_DELETE) {
+
+			// CREATE then DELETE, so nothing to notify
+			previous.clearReference();
+			return true;
+
 		}
 
 		return false;
 	}
 
 	/**
-	 * postpones the post of the specified event, when it will be time to post,
-	 * the reference might have been cleaned up
+	 * postpones the post of the specified event, when it will be time to post, the
+	 * reference might have been cleaned up
 	 *
 	 * (package-private for test purposes)
 	 */
 	void schedulePost(final EventReference event) {
-		executor.schedule(new Runnable() {
-			@Override
-			public void run() {
-				synchronized (queue) {
-					try {
-						if (event.isPresent()) {
-							eventBus.post(event.getReference());
-						}
-					} finally {
-						dequeue(event.getKey(), event);
+		executor.schedule(() -> {
+			synchronized (queue) {
+				try {
+					if (event.isPresent()) {
+						eventBus.post(event.getReference());
 					}
+				} finally {
+					dequeue(event.getKey(), event);
 				}
 			}
 		}, coalescePeriod, TimeUnit.MILLISECONDS);
@@ -141,10 +147,10 @@ public class FileWatchEventCoalescor extends EventCoalescor<FileWatchEvent> {
 	 */
 	void dequeue(FileWatchEventKey key, EventReference event) {
 		Deque<EventReference> fileEvents;
-		if ((fileEvents = queue.get(key)) != null) {
-			if (fileEvents.remove(event) && fileEvents.isEmpty()) {
-				queue.remove(key); // no more events for this key, remove the stack
-			}
+		if ((fileEvents = queue.get(key)) != null && fileEvents.remove(event) && fileEvents.isEmpty()) {
+
+			queue.remove(key); // no more events for this key, remove the stack
+
 		}
 	}
 
@@ -160,7 +166,8 @@ public class FileWatchEventCoalescor extends EventCoalescor<FileWatchEvent> {
 	}
 
 	/**
-	 * key used for the storage of an event, composed by file paths, two event with same keys, are for the same physical file
+	 * key used for the storage of an event, composed by file paths, two event with
+	 * same keys, are for the same physical file
 	 */
 	static class FileWatchEventKey {
 		static FileWatchEventKey fromEvent(FileWatchEvent event) {
@@ -196,7 +203,8 @@ public class FileWatchEventCoalescor extends EventCoalescor<FileWatchEvent> {
 	}
 
 	/**
-	 * this is a reference holder, the reference might have been cleaned up, and be null
+	 * this is a reference holder, the reference might have been cleaned up, and be
+	 * null
 	 *
 	 * it also stores the key of the event, in order to avoid key recalculation
 	 */

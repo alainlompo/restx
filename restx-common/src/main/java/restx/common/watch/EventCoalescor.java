@@ -65,18 +65,17 @@ public abstract class EventCoalescor<T> implements Closeable {
 		public void post(final Object event) {
 			synchronized (queue) {
 				if (queue.add(event)) {
-					executor.schedule(new Runnable() {
-						@Override
-						public void run() {
-							try {
-								eventBus.post(event);
-							} finally {
-								synchronized (queue) {
-									queue.remove(event);
+					executor.schedule(
+							() -> {
+								try {
+									eventBus.post(event);
+								} finally {
+									synchronized (queue) {
+										queue.remove(event);
+									}
 								}
 							}
-						}
-					}, coalescePeriod, TimeUnit.MILLISECONDS);
+					, coalescePeriod, TimeUnit.MILLISECONDS);
 				}
 			}
 		}

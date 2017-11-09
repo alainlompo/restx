@@ -11,13 +11,12 @@ import java.util.regex.Pattern;
  * Time: 5:56 PM
  */
 public class MoreStrings {
-    public static final Function<String,String> SURROUND_WITH_DOUBLE_QUOTES = new Function<String, String>() {
-        @Override
-        public String apply(String input) {
-            return input==null?null:String.format("\"%s\"", input);
-        }
-    };
-
+	
+	private MoreStrings() {	
+	}
+	
+    public static final Function<String,String> SURROUND_WITH_DOUBLE_QUOTES = input -> input==null?null:String.format("\"%s\"", input);
+    		
     public static String indent(String s, int i) {
         return Pattern.compile("^", Pattern.MULTILINE).matcher(s).replaceAll(Strings.repeat(" ", i));
     }

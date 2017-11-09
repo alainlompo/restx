@@ -3,6 +3,8 @@ package restx.common;
 import com.google.common.base.Charsets;
 import com.google.common.io.BaseEncoding;
 
+import restx.common.exceptions.CryptoException;
+
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
 
@@ -11,6 +13,8 @@ import javax.crypto.spec.SecretKeySpec;
  */
 public class Crypto {
 
+	private Crypto() {
+	}
     /**
      * Sign a message with a key
      * @param message The message to sign
@@ -30,7 +34,7 @@ public class Crypto {
             byte[] result = mac.doFinal(messageBytes);
             return BaseEncoding.base64().encode(result);
         } catch (Exception ex) {
-            throw new RuntimeException(ex);
+            throw new CryptoException(ex);
         }
     }
 }

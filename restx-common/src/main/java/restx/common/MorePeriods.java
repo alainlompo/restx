@@ -13,6 +13,9 @@ import java.util.Locale;
 
 public class MorePeriods {
 
+	private MorePeriods() {
+	}
+	
     private static final PeriodParser PERIOD_PARSER = new PeriodFormatterBuilder()
                 .appendYears().appendSuffix("y").appendSeparatorIfFieldsAfter(" ")
                 .appendMonths().appendSuffix("mo").appendSeparatorIfFieldsAfter(" ")

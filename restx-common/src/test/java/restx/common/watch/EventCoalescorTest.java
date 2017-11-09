@@ -9,6 +9,11 @@ import org.junit.Test;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.Callable;
+import java.util.concurrent.TimeUnit;
+
+import static org.awaitility.Awaitility.*;
+
 
 /**
  * User: xavierhanin
@@ -35,7 +40,7 @@ public class EventCoalescorTest {
         coalescor.post("test1");
         coalescor.post("test3");
 
-        Thread.sleep(40);
+        waitFor(40);
 
         assertThat(messages).containsExactly("test1", "test2", "test3");
 
@@ -45,8 +50,17 @@ public class EventCoalescorTest {
         coalescor.post("test1");
         coalescor.post("test1");
         coalescor.post("test1");
-        Thread.sleep(40);
+        waitFor(40);
 
         assertThat(messages).containsExactly("test2", "test1");
+    }
+    
+    private void waitFor(long duration) {
+    	long now = System.currentTimeMillis();
+    	await().atLeast(duration, TimeUnit.MILLISECONDS).until(timeIsElapsed(now, duration));
+    }
+    
+    private Callable<Boolean> timeIsElapsed(long now, long duration) {
+		return () -> System.currentTimeMillis() - now >= duration;
     }
 }

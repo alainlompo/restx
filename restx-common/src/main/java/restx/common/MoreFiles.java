@@ -22,19 +22,14 @@ import static com.google.common.io.Files.createParentDirs;
 /**
  */
 public class MoreFiles {
-    public static final Function<? super Path, ? extends File> pathToFile = new Function<Path, File>() {
-        @Override
-        public File apply(Path input) {
-            return input.toFile();
-        }
-    };
-    public static final Function<String, Path> strToPath = new Function<String, Path>() {
-        @Override
-        public Path apply(String input) {
-            return FileSystems.getDefault().getPath(input);
-        }
-    };
-
+	
+	private MoreFiles() {
+	}
+	
+    public static final Function<? super Path, ? extends File> pathToFile = input -> input.toFile();
+    		
+    public static final Function<String, Path> strToPath = input -> FileSystems.getDefault().getPath(input);
+    		
     public static void delete(Path path) throws IOException {
         if (path.toFile().isDirectory()) {
             Files.walkFileTree(path, new SimpleFileVisitor<Path>() {

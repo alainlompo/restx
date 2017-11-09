@@ -5,6 +5,10 @@ package restx.common;
  * Time: 11:13
  */
 public class MoreObjects {
+	
+	private MoreObjects() {
+	}
+	
     public static String toString(Class clazz) {
         if (clazz == null) {
             return "null";

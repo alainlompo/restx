@@ -5,6 +5,8 @@ import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Iterables;
 import com.samskivert.mustache.Template;
 
+import restx.common.processor.exceptions.AbstractProcessorException;
+
 import javax.annotation.processing.AbstractProcessor;
 import javax.annotation.processing.RoundEnvironment;
 import javax.lang.model.SourceVersion;
@@ -190,7 +192,7 @@ public abstract class RestxAbstractProcessor extends AbstractProcessor {
 				try {
 					fileObject = processingEnv.getFiler().createResource(StandardLocation.CLASS_OUTPUT, "", targetFile);
 				} catch (IOException e) {
-					throw new RuntimeException(e);
+					throw new AbstractProcessorException(e);
 				}
 			}
 			try (Writer writer = fileObject.openWriter()) {

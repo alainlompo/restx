@@ -1,16 +1,14 @@
 package restx.common;
 
-import com.google.common.base.Optional;
-import com.google.common.base.Predicate;
-import com.google.common.collect.ObjectArrays;
-import com.google.common.collect.Sets;
-
-import java.lang.reflect.GenericArrayType;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.Collection;
 import java.util.List;
 import java.util.Set;
+
+import com.google.common.base.Optional;
+import com.google.common.collect.ObjectArrays;
+import com.google.common.collect.Sets;
 
 /**
  * Created by fcamblor on 13/05/16.

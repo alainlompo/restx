@@ -28,6 +28,10 @@ import static java.util.Arrays.asList;
  * Time: 9:13 PM
  */
 public class MoreResources {
+	
+	private MoreResources() {	
+	}
+	
     public static URL getResource(String resourceName, boolean searchInSources) {
         URL resource = null;
         if (searchInSources) {

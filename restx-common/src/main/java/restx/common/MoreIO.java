@@ -8,6 +8,10 @@ import java.net.ServerSocket;
  * Time: 12:59
  */
 public class MoreIO {
+	
+	private MoreIO() {
+	}
+	
     public static void checkCanOpenSocket(int port) {
         try {
             ServerSocket serverSocket = new ServerSocket(port);

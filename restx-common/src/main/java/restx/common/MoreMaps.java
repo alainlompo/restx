@@ -10,6 +10,9 @@ import com.google.common.collect.ImmutableMap;
  */
 public class MoreMaps {
 
+	private MoreMaps() {
+	}
+	
     public static <K, V> Builder<K, V> immutableBuilder() {
         return new Builder<>();
     }
