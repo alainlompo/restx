@@ -14,6 +14,10 @@ import java.util.Map;
  * Time: 11:02
  */
 public class Types {
+	
+	private Types() {
+	}
+	
     public static ParameterizedType newParameterizedType(final Class<?> rawType, final Type... arguments) {
         return new ParameterizedType() {
             @Override
@@ -124,10 +128,8 @@ public class Types {
 				 */
 
 				Type genericSuperclass = ((Class) t2).getGenericSuperclass();
-				if (genericSuperclass != null) {
-					if (isAssignableFrom(t1, genericSuperclass)) {
-						return true;
-					}
+				if (genericSuperclass != null && isAssignableFrom(t1, genericSuperclass)) {
+					return true;
 				}
 				Type[] genericInterfaces = ((Class) t2).getGenericInterfaces();
 				for (Type genericInterface : genericInterfaces) {

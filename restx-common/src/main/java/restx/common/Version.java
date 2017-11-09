@@ -12,6 +12,10 @@ import java.util.Properties;
  * Time: 7:40 AM
  */
 public class Version {
+	
+	private Version() {
+	}
+	
     public static String getVersion(String groupId, String module) {
         try (InputStream stream = Version.class.getResourceAsStream(
                 "/META-INF/maven/" + groupId + "/" + module + "/pom.properties")) {

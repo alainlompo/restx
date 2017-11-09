@@ -6,6 +6,11 @@ import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import java.util.concurrent.Callable;
+import java.util.concurrent.TimeUnit;
+
+import static org.awaitility.Awaitility.*;
+
 /**
  * Date: 26/12/13
  * Time: 18:13
@@ -26,7 +31,7 @@ public class ThreadLocalMillisProviderTest {
         long now = System.currentTimeMillis();
         ThreadLocalMillisProvider.setCurrentMillisFixed(now);
 
-        Thread.sleep(10);
+        waitFor(10);
 
         assertThat(DateTimeUtils.currentTimeMillis()).isEqualTo(now);
 
@@ -34,13 +39,22 @@ public class ThreadLocalMillisProviderTest {
 
         assertThat(DateTimeUtils.currentTimeMillis()).isNotEqualTo(now);
     }
+    
+    private void waitFor(long duration) {
+    	long now =  System.currentTimeMillis();
+    	await().atLeast(duration, TimeUnit.MILLISECONDS).until(timeIsElapsed(now, duration));
+    }
+    
+    private Callable<Boolean> timeIsElapsed(long now, long duration) {
+    	return () -> System.currentTimeMillis() - now >= duration;
+    }
 
     @Test
     public void should_return_system_time_in_other_thread() throws Exception {
         final long now = System.currentTimeMillis();
         ThreadLocalMillisProvider.setCurrentMillisFixed(now);
 
-        Thread.sleep(10);
+        waitFor(10);
         final long[] fromOtherThread = new long[1];
         collectCurrentTimeInThread(fromOtherThread, 0).join();
         assertThat(fromOtherThread[0]).isNotEqualTo(now).isNotEqualTo(0);
@@ -64,15 +78,12 @@ public class ThreadLocalMillisProviderTest {
         Thread thread = new Thread(new Runnable() {
             @Override
             public void run() {
-                try {
+                
                     ThreadLocalMillisProvider.setCurrentMillisFixed(now);
-                    Thread.sleep(10);
+                    waitFor(10);
                     fromOtherThread[i] = DateTimeUtils.currentTimeMillis();
-                } catch (InterruptedException e) {
-                    throw new RuntimeException(e);
-                } finally {
                     ThreadLocalMillisProvider.clear();
-                }
+                
             }
         });
         thread.start();

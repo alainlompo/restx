@@ -1,9 +1,8 @@
 package restx.common;
 
-import com.google.common.base.Preconditions;
-import org.joda.time.DateTimeUtils;
-
 import static com.google.common.base.Preconditions.checkNotNull;
+
+import org.joda.time.DateTimeUtils;
 
 /**
  * A MillisProvider which delegates to other providers with a per thread setting.
@@ -14,13 +13,8 @@ import static com.google.common.base.Preconditions.checkNotNull;
  * Note that calling any of the set method will install a ThreadLocalMillisProvider as DateTimeUtils millis provider.
  */
 public class ThreadLocalMillisProvider implements DateTimeUtils.MillisProvider {
-    private static final DateTimeUtils.MillisProvider systemMillisProvider = new DateTimeUtils.MillisProvider() {
-        @Override
-        public long getMillis() {
-            return System.currentTimeMillis();
-        }
-    };
-
+    private static final DateTimeUtils.MillisProvider systemMillisProvider = System::currentTimeMillis;
+    		
     private static final ThreadLocal<DateTimeUtils.MillisProvider> local
             = new ThreadLocal<DateTimeUtils.MillisProvider>() {
         @Override
@@ -31,22 +25,22 @@ public class ThreadLocalMillisProvider implements DateTimeUtils.MillisProvider {
 
     private static final DateTimeUtils.MillisProvider INSTANCE = new ThreadLocalMillisProvider();
 
-    public static final void setCurrentMillisSystem() throws SecurityException {
+    public static final void setCurrentMillisSystem() {
         install();
         local.set(systemMillisProvider);
     }
 
-    public static final void setCurrentMillisFixed(long fixedMillis) throws SecurityException {
+    public static final void setCurrentMillisFixed(long fixedMillis) {
         install();
         local.set(new FixedMillisProvider(fixedMillis));
     }
 
-    public static final void setCurrentMillisOffset(long offsetMillis) throws SecurityException {
+    public static final void setCurrentMillisOffset(long offsetMillis) {
         install();
         local.set(new OffsetMillisProvider(offsetMillis));
     }
 
-    public static final void setCurrentMillisProvider(DateTimeUtils.MillisProvider millisProvider) throws SecurityException {
+    public static final void setCurrentMillisProvider(DateTimeUtils.MillisProvider millisProvider) {
         install();
         local.set(checkNotNull(millisProvider));
     }

@@ -1,11 +1,9 @@
 package restx.common;
 
-import com.google.common.collect.ImmutableList;
+import static com.google.common.collect.Lists.newArrayList;
 
 import java.util.Iterator;
 import java.util.UUID;
-
-import static com.google.common.collect.Lists.newArrayList;
 
 /**
  * User: xavierhanin

@@ -1,17 +1,22 @@
 package restx.common;
 
+import static com.google.common.base.Strings.isNullOrEmpty;
+import static java.util.Arrays.asList;
+
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+
 import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.io.CharSource;
-import com.google.common.io.CharStreams;
 
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.util.*;
-
-import static com.google.common.base.Strings.isNullOrEmpty;
-import static java.util.Arrays.asList;
+import restx.common.exceptions.RestxConfigException;
 
 /**
  * A standard implementation of RestxConfig.
@@ -106,7 +111,7 @@ public class StdRestxConfig implements RestxConfig {
         try {
             return Optional.of(Integer.parseInt(element.getValue()));
         } catch (NumberFormatException e) {
-            throw new RuntimeException("can't access " + element +
+            throw new RestxConfigException("can't access " + element +
                     " as int" +
                     " (parse exception " + e.getMessage() + ")");
         }
@@ -121,7 +126,7 @@ public class StdRestxConfig implements RestxConfig {
         try {
             return Optional.of(Long.parseLong(element.getValue()));
         } catch (NumberFormatException e) {
-            throw new RuntimeException("can't access " + element +
+            throw new RestxConfigException("can't access " + element +
                     " as long" +
                     " (parse exception " + e.getMessage() + ")");
         }

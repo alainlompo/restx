@@ -1,17 +1,31 @@
 package restx.common.watch;
 
-import com.google.common.eventbus.EventBus;
+import static java.nio.file.StandardWatchEventKinds.ENTRY_CREATE;
+import static java.nio.file.StandardWatchEventKinds.ENTRY_DELETE;
+import static java.nio.file.StandardWatchEventKinds.ENTRY_MODIFY;
+import static java.nio.file.StandardWatchEventKinds.OVERFLOW;
 
 import java.io.Closeable;
 import java.io.IOException;
-import java.nio.file.*;
+import java.nio.file.ClosedWatchServiceException;
+import java.nio.file.FileSystems;
+import java.nio.file.FileVisitResult;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.SimpleFileVisitor;
+import java.nio.file.WatchEvent;
+import java.nio.file.WatchKey;
+import java.nio.file.WatchService;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
-import static java.nio.file.LinkOption.NOFOLLOW_LINKS;
-import static java.nio.file.StandardWatchEventKinds.*;
+import com.google.common.eventbus.EventBus;
+
+import restx.common.watch.exceptions.WatcherServiceException;
 
 /**
 * User: xavierhanin
@@ -19,6 +33,9 @@ import static java.nio.file.StandardWatchEventKinds.*;
 * Time: 2:17 PM
 */
 public class StdWatcherService implements WatcherService {
+	
+	private static final Logger LOGGER = Logger.getLogger(StdWatcherService.class.getName());
+	
     @Override
     public Closeable watch(EventBus eventBus, ExecutorService executor, Path dir, WatcherSettings settings) {
         try {
@@ -31,7 +48,7 @@ public class StdWatcherService implements WatcherService {
             });
             return watchDir;
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            throw new WatcherServiceException(e);
         }
     }
 
@@ -62,10 +79,12 @@ public class StdWatcherService implements WatcherService {
             if (trace) {
                 Path prev = keys.get(key);
                 if (prev == null) {
-                    System.out.format("register: %s\n", dir);
+                	LOGGER.log(Level.FINE, "register: {0}\n", dir);
                 } else {
                     if (!dir.equals(prev)) {
-                        System.out.format("update: %s -> %s\n", prev, dir);
+                    	String prevPath = prev.toString();
+                    	String dirPath = dir.toString();
+                    	LOGGER.log(Level.FINE,"update: {0} -> {1}\n", new Object[] { prevPath, dirPath});
                     }
                 }
             }
@@ -124,7 +143,7 @@ public class StdWatcherService implements WatcherService {
 
 					Path dir = keys.get(key);
 					if (dir == null) {
-						System.err.println("WatchKey not recognized!!");
+						LOGGER.log(Level.WARNING, "WatchKey not recognized!!");
 						continue;
 					}
 
@@ -146,13 +165,7 @@ public class StdWatcherService implements WatcherService {
 						// if directory is created, and watching recursively, then
 						// register it and its sub-directories
 						if (recursive && (kind == ENTRY_CREATE)) {
-							try {
-								if (Files.isDirectory(child, NOFOLLOW_LINKS)) {
-									registerAll(child);
-								}
-							} catch (IOException x) {
-								// ignore to keep sample readbale
-							}
+							deeplyRegister(child);
 						}
 					}
 
@@ -172,6 +185,16 @@ public class StdWatcherService implements WatcherService {
                 // while the current thread was waiting some event with the "take" method.
             }
         }
+
+		private void deeplyRegister(Path child) {
+			try {
+				if (child.toFile().isDirectory()) {
+					registerAll(child);
+				}
+			} catch (IOException x) {
+				// ignore to keep sample readbale
+			}
+		}
 
         @Override
         public void close() throws IOException {

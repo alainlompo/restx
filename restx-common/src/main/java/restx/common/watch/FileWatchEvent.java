@@ -70,9 +70,7 @@ public class FileWatchEvent {
 
         if (!dir.equals(that.dir)) return false;
         if (!kind.equals(that.kind)) return false;
-        if (!path.equals(that.path)) return false;
-
-        return true;
+        return path.equals(that.path);
     }
 
     @Override

@@ -35,7 +35,9 @@ import java.util.Set;
  * Time: 07:50
  */
 public abstract class RestxAbstractProcessor extends AbstractProcessor {
-    @Override
+    private static final String FATAL_ERROR = "FATAL ERROR: ";
+
+	@Override
     public boolean process(Set<? extends TypeElement> annotations, RoundEnvironment roundEnv) {
         try {
             return processImpl(annotations, roundEnv);
@@ -68,19 +70,19 @@ public abstract class RestxAbstractProcessor extends AbstractProcessor {
     }
 
     protected void fatalError(String msg) {
-        processingEnv.getMessager().printMessage(Diagnostic.Kind.ERROR, "FATAL ERROR: " + msg);
+        processingEnv.getMessager().printMessage(Diagnostic.Kind.ERROR, FATAL_ERROR + msg);
     }
 
     protected void fatalError(String msg, Exception e) {
         StringWriter writer = new StringWriter();
         e.printStackTrace(new PrintWriter(writer));
-        processingEnv.getMessager().printMessage(Diagnostic.Kind.ERROR, "FATAL ERROR: " + msg + " " + writer);
+        processingEnv.getMessager().printMessage(Diagnostic.Kind.ERROR, FATAL_ERROR + msg + " " + writer);
     }
 
     protected void fatalError(String msg, Exception e, Element element) {
         StringWriter writer = new StringWriter();
         e.printStackTrace(new PrintWriter(writer));
-        processingEnv.getMessager().printMessage(Diagnostic.Kind.ERROR, "FATAL ERROR: " + msg + " " + writer, element);
+        processingEnv.getMessager().printMessage(Diagnostic.Kind.ERROR, FATAL_ERROR + msg + " " + writer, element);
     }
 
     protected PackageElement getPackage(TypeElement typeElement) {
@@ -219,16 +221,20 @@ public abstract class RestxAbstractProcessor extends AbstractProcessor {
 				try {
 					File file = new File(ex.getMessage());
 					if (file.exists()) {
-						try (Reader r = new FileReader(file)) {
-							readContent(r);
-						} catch (IOException e) {
-							// ignore
-						}
+						readContent(file);
 					}
 				} catch (Exception e) {
 					// ignore
 				}
 			} catch (IOException | IllegalArgumentException ex) {
+				// ignore
+			}
+		}
+
+		private void readContent(File file) {
+			try (Reader r = new FileReader(file)) {
+				readContent(r);
+			} catch (IOException e) {
 				// ignore
 			}
 		}

@@ -1,15 +1,15 @@
 package restx.common;
 
-import com.google.common.cache.Cache;
-import com.google.common.cache.CacheBuilder;
-import com.google.common.cache.CacheLoader;
-import com.google.common.cache.LoadingCache;
+import java.util.Locale;
+
 import org.joda.time.MutablePeriod;
 import org.joda.time.Period;
 import org.joda.time.format.PeriodFormatterBuilder;
 import org.joda.time.format.PeriodParser;
 
-import java.util.Locale;
+import com.google.common.cache.CacheBuilder;
+import com.google.common.cache.CacheLoader;
+import com.google.common.cache.LoadingCache;
 
 public class MorePeriods {
 
